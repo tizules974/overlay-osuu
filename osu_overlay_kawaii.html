@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: transparent;
+    font-family: 'Nunito', sans-serif;
+    width: 480px;
+  }
+
+  .overlay {
+    background: linear-gradient(135deg, rgba(30,10,40,0.92) 0%, rgba(50,10,60,0.92) 100%);
+    border: 1.5px solid rgba(255,80,180,0.5);
+    border-radius: 16px;
+    padding: 14px 18px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .overlay::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 120px; height: 120px;
+    background: rgba(255,80,180,0.08);
+    border-radius: 50%;
+  }
+
+  .overlay::after {
+    content: '';
+    position: absolute;
+    bottom: -30px; left: -30px;
+    width: 90px; height: 90px;
+    background: rgba(180,60,255,0.07);
+    border-radius: 50%;
+  }
+
+  .top-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 10px;
+  }
+
+  .beatmap-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .song-title {
+    font-family: 'Fredoka One', cursive;
+    font-size: 16px;
+    color: #ff88dd;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-shadow: 0 0 12px rgba(255,100,200,0.4);
+  }
+
+  .song-artist {
+    font-size: 11px;
+    color: rgba(255,180,240,0.65);
+    margin-top: 1px;
+  }
+
+  .diff-badge {
+    background: rgba(255,80,180,0.18);
+    border: 1px solid rgba(255,80,180,0.4);
+    border-radius: 20px;
+    padding: 3px 10px;
+    font-size: 11px;
+    color: #ff99ee;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .stats-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .stat-box {
+    flex: 1;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,80,180,0.2);
+    border-radius: 10px;
+    padding: 7px 10px;
+    text-align: center;
+  }
+
+  .stat-label {
+    font-size: 9px;
+    color: rgba(255,180,240,0.5);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 2px;
+  }
+
+  .stat-value {
+    font-family: 'Fredoka One', cursive;
+    font-size: 18px;
+    color: #ffaaee;
+    text-shadow: 0 0 10px rgba(255,100,200,0.3);
+    line-height: 1;
+  }
+
+  .stat-value.pp    { color: #ff77dd; font-size: 20px; }
+  .stat-value.combo { color: #cc88ff; }
+  .stat-value.acc   { color: #88ffcc; }
+
+  .acc-bar-wrap { margin-bottom: 8px; }
+
+  .acc-bar-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 9px;
+    color: rgba(255,180,240,0.45);
+    margin-bottom: 3px;
+  }
+
+  .acc-bar-bg {
+    height: 5px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .acc-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #cc44ff, #ff44bb, #ff88dd);
+    border-radius: 10px;
+    animation: pulse-bar 2s ease-in-out infinite;
+    transition: width 0.5s ease;
+  }
+
+  @keyframes pulse-bar {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+  }
+
+  .deco {
+    position: absolute;
+    font-size: 11px;
+    opacity: 0.25;
+    animation: float 3s ease-in-out infinite;
+  }
+  .deco:nth-child(1) { top: 8px;  right: 60px; animation-delay: 0s;   }
+  .deco:nth-child(2) { top: 18px; right: 40px; animation-delay: 1s;   }
+  .deco:nth-child(3) { bottom: 10px; right: 20px; animation-delay: 0.5s; }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0);    }
+    50%       { transform: translateY(-4px); }
+  }
+
+  .grade {
+    font-family: 'Fredoka One', cursive;
+    font-size: 28px;
+    text-shadow: 0 0 14px rgba(255,200,50,0.5);
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .grade.SS { color: #ffdd55; }
+  .grade.S  { color: #ff99cc; }
+  .grade.A  { color: #88ff88; }
+  .grade.B  { color: #88ccff; }
+  .grade.C  { color: #ffaa55; }
+  .grade.D  { color: #ff5555; }
+</style>
+</head>
+<body>
+<div class="overlay">
+  <span class="deco">♥</span>
+  <span class="deco">✿</span>
+  <span class="deco">★</span>
+
+  <div class="top-row">
+    <div class="beatmap-info">
+      <div class="song-title" id="title">En attente d'osu!...</div>
+      <div class="song-artist" id="artist"></div>
+    </div>
+    <div class="diff-badge" id="stars">⭐ —</div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-box">
+      <div class="stat-label">PP</div>
+      <div class="stat-value pp" id="pp">—</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">Combo</div>
+      <div class="stat-value combo" id="combo">—</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">Accuracy</div>
+      <div class="stat-value acc" id="acc">—</div>
+    </div>
+    <div class="stat-box" style="flex:0.7">
+      <div class="stat-label">Grade</div>
+      <div class="grade S" id="grade">—</div>
+    </div>
+  </div>
+
+  <div class="acc-bar-wrap">
+    <div class="acc-bar-labels">
+      <span>accuracy</span>
+      <span id="acc-label">—</span>
+    </div>
+    <div class="acc-bar-bg">
+      <div class="acc-bar-fill" id="acc-bar" style="width: 0%"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Connexion à tosu via WebSocket (port 24050)
+  function connect() {
+    const ws = new WebSocket('ws://localhost:24050/websocket/v2');
+
+    ws.onmessage = function(event) {
+      try {
+        const data = JSON.parse(event.data);
+        const menu = data.menu;
+        const gp   = data.gameplay;
+
+        if (menu && menu.bm) {
+          document.getElementById('title').textContent =
+            menu.bm.metadata.title || 'En attente d\'osu!...';
+          document.getElementById('artist').textContent =
+            (menu.bm.metadata.artist || '') + (menu.bm.metadata.mapper ? ' — mapped by ' + menu.bm.metadata.mapper : '');
+          const sr = menu.bm.stats ? menu.bm.stats.SR : null;
+          document.getElementById('stars').textContent = sr ? '⭐ ' + parseFloat(sr).toFixed(2) : '⭐ —';
+        }
+
+        if (gp) {
+          const pp  = gp.pp ? Math.round(gp.pp.current) : null;
+          const cmb = gp.combo ? gp.combo.current : null;
+          const acc = gp.accuracy != null ? parseFloat(gp.accuracy).toFixed(2) : null;
+          const grade = gp.hits ? gp.hits.grade : null;
+
+          document.getElementById('pp').textContent    = pp  != null ? pp + 'pp' : '—';
+          document.getElementById('combo').textContent = cmb != null ? 'x' + cmb : '—';
+          document.getElementById('acc').textContent   = acc != null ? acc + '%' : '—';
+          document.getElementById('acc-label').textContent = acc != null ? acc + '%' : '—';
+          document.getElementById('acc-bar').style.width   = acc != null ? acc + '%' : '0%';
+
+          if (grade) {
+            const el = document.getElementById('grade');
+            el.textContent  = grade;
+            el.className    = 'grade ' + grade;
+          }
+        }
+      } catch(e) {}
+    };
+
+    ws.onclose = function() {
+      setTimeout(connect, 3000);
+    };
+  }
+
+  connect();
+</script>
+</body>
+</html>
